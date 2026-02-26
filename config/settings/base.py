@@ -32,17 +32,17 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'apps.core',
     'apps.accounts',
-    'apps.catalog',
-    'apps.inventory',
-    'apps.cart',
-    'apps.orders',
-    'apps.payments',
-    'apps.shipping',
-    'apps.discounts',
+ #   'apps.catalog',
+ #   'apps.inventory',
+ #   'apps.cart',
+ #   'apps.orders',
+ #   'apps.payments',
+ #   'apps.shipping',
+ #   'apps.discounts',
     'apps.audit',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -162,5 +162,5 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Custom User Model
-#AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = 'accounts.User'
 
