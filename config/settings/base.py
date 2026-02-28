@@ -32,13 +32,13 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'apps.core',
     'apps.accounts',
- #   'apps.catalog',
- #   'apps.inventory',
- #   'apps.cart',
- #   'apps.orders',
- #   'apps.payments',
- #   'apps.shipping',
- #   'apps.discounts',
+    'apps.catalog',
+    'apps.inventory',
+    'apps.cart',
+    'apps.orders',
+    'apps.payments',
+    'apps.shipping',
+    'apps.discounts',
     'apps.audit',
 ]
 

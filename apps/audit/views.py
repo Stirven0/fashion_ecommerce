@@ -86,7 +86,8 @@ def audit_stats(request):
     ).order_by('-count')
     
     # Entidades más modificadas
-    top_entities = AuditLog.objects.values(        'entity_type'
+    top_entities = AuditLog.objects.values(
+	'entity_type'
     ).annotate(
         count=Count('id')
     ).order_by('-count')[:10]
