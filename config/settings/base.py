@@ -90,6 +90,7 @@ LOCAL_APPS = [
     "fashion_store.products",
     "fashion_store.cart",
     "fashion_store.orders",
+    "fashion_store.dashboard",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

@@ -23,6 +23,7 @@ urlpatterns = [
     path("productos/", include("fashion_store.products.urls")),
     path("carrito/", include("fashion_store.cart.urls")),
     path("pedidos/", include("fashion_store.orders.urls")),
+    path("dashboard/", include("fashion_store.dashboard.urls")),
     # Your stuff: custom urls includes go here
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

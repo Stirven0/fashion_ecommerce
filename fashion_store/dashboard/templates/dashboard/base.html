@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-co">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard{% endblock %} — {{ store_name }}</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
+        integrity="sha512-SbiR/eusphKoMVVXysTKG/7VseWii+Y3FdHrt0EpKgpToZeemhqHeZeLWLhJutz/2ut2Vw1uQEj2MbRF+TVBUA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    body { background: #f5f6fa; }
+    .sidebar { min-height: 100vh; background: #1a1a2e; }
+    .sidebar .nav-link { color: rgba(255,255,255,.7); padding: .75rem 1.25rem; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,.1); }
+    .sidebar .nav-link i { width: 1.5rem; }
+    .stat-card { border: none; border-radius: 12px; transition: transform .2s; }
+    .stat-card:hover { transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+  <div class="d-flex">
+    <div class="sidebar d-flex flex-column flex-shrink-0 p-3" style="width: 250px;">
+      <a href="{% url 'dashboard:home' %}" class="d-flex align-items-center mb-3 text-white text-decoration-none fw-bold fs-5">
+        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+      </a>
+      <hr class="text-white opacity-25">
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="bi bi-house-door"></i> Inicio
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'dashboard:product_list' %}" class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-box"></i> Productos
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'dashboard:order_list' %}" class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-receipt"></i> Pedidos
+          </a>
+        </li>
+      </ul>
+      <hr class="text-white opacity-25">
+      <a href="{% url 'home' %}" class="nav-link text-white-50 small"><i class="bi bi-arrow-left"></i> Volver a la tienda</a>
+    </div>
+
+    <main class="flex-grow-1 p-4">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-dismissible fade show {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script defer
+          src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"
+          integrity="sha512-1/RvZTcCDEUjY/CypiMz+iqqtaoQfAITmNSJY17Myp4Ms5mdxPS5UV7iOfdZoxcGhzFbOm6sntTKJppjvuhg4g=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
+</body>
+</html>

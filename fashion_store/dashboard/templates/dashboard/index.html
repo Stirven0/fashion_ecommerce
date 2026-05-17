@@ -1,0 +1,179 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Panel de Control</h2>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card stat-card bg-primary text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-1">Productos</h6>
+            <h3 class="mb-0">{{ total_products }}</h3>
+            <small>{{ active_products }} activos · {{ inactive_products }} inactivos</small>
+          </div>
+          <i class="bi bi-box fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card bg-success text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-1">Pedidos</h6>
+            <h3 class="mb-0">{{ total_orders }}</h3>
+            <small>{{ pending_orders }} pendientes</small>
+          </div>
+          <i class="bi bi-receipt fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card bg-warning text-dark">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-1">Stock Bajo</h6>
+            <h3 class="mb-0">{{ low_stock_count }}</h3>
+            <small>variantes con ≤5 unidades</small>
+          </div>
+          <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card stat-card bg-info text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="card-title mb-1">Ingresos</h6>
+            <h3 class="mb-0">${{ total_revenue|intcomma }}</h3>
+            <small>pedidos entregados</small>
+          </div>
+          <i class="bi bi-currency-dollar fs-1 opacity-50"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong><i class="bi bi-trophy"></i> Más Vendidos</strong>
+      </div>
+      <div class="card-body p-0">
+        {% if best_sellers %}
+          <table class="table mb-0">
+            <thead class="table-light">
+              <tr><th>#</th><th>Producto</th><th class="text-end">Unidades vendidas</th></tr>
+            </thead>
+            <tbody>
+              {% for item in best_sellers %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ item.product_name }}</td>
+                  <td class="text-end fw-bold">{{ item.total_qty }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="text-center py-4 text-muted">Sin ventas aún</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <strong><i class="bi bi-exclamation-diamond"></i> Stock Bajo</strong>
+      </div>
+      <div class="card-body p-0">
+        {% if low_stock_variants %}
+          <table class="table mb-0">
+            <thead class="table-light">
+              <tr><th>Producto</th><th>Talla</th><th>Color</th><th class="text-end">Stock</th></tr>
+            </thead>
+            <tbody>
+              {% for v in low_stock_variants %}
+                <tr>
+                  <td>{{ v.product.name }}</td>
+                  <td>{{ v.size|default:"-" }}</td>
+                  <td>{{ v.color|default:"-" }}</td>
+                  <td class="text-end"><span class="badge bg-{% if v.stock == 0 %}danger{% else %}warning{% endif %}">{{ v.stock }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="text-center py-4 text-muted">Todo en stock</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-2">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong><i class="bi bi-clock-history"></i> Pedidos Recientes</strong>
+        <a href="{% url 'dashboard:order_list' %}" class="btn btn-sm btn-outline-dark">Ver todos</a>
+      </div>
+      <div class="card-body p-0">
+        {% if recent_orders %}
+          <table class="table mb-0">
+            <thead class="table-light">
+              <tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              {% for order in recent_orders %}
+                <tr>
+                  <td><a href="{% url 'dashboard:order_detail' order.id %}">#{{ order.id }}</a></td>
+                  <td>{{ order.full_name }}</td>
+                  <td>${{ order.total|intcomma }}</td>
+                  <td><span class="badge {% if order.status == 'delivered' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% elif order.status == 'pending_whatsapp' %}bg-warning text-dark{% else %}bg-info{% endif %}">{{ order.get_status_display }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="text-center py-4 text-muted">Sin pedidos aún</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <strong><i class="bi bi-graph-up"></i> Ingresos (últimos 7 días)</strong>
+      </div>
+      <div class="card-body">
+        {% if revenue_by_day %}
+          <div class="d-flex align-items-end gap-2" style="height: 150px;">
+            {% for day, amount in revenue_by_day.items %}
+              <div class="flex-grow-1 d-flex flex-column align-items-center">
+                <small class="text-muted mb-1">${{ amount|intcomma }}</small>
+                <div style="width: 100%; height: {{ amount|default:1|add:1 }}px; max-height: 120px; background: #0d6efd; border-radius: 4px 4px 0 0;"></div>
+                <small class="text-muted mt-1">{{ day|slice:"5:" }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">Sin datos de ingresos</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

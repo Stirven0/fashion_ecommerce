@@ -1,0 +1,115 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0"><i class="bi {% if object %}bi-pencil{% else %}bi-plus-lg{% endif %}"></i> {{ title }}</h3>
+  <a href="{% url 'dashboard:product_list' %}" class="btn btn-outline-dark btn-sm"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label fw-semibold">Nombre</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Categoría</label>
+          {{ form.category }}
+          {% if form.category.errors %}<div class="text-danger small">{{ form.category.errors }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Descripción</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Precio ($)</label>
+          {{ form.price }}
+          {% if form.price.errors %}<div class="text-danger small">{{ form.price.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Precio de comparación ($)</label>
+          {{ form.compare_price }}
+          <div class="form-text">Precio original/tachado (debe ser mayor al precio normal)</div>
+          {% if form.compare_price.errors %}<div class="text-danger small">{{ form.compare_price.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Imagen principal</label>
+          {{ form.image }}
+          {% if form.image.errors %}<div class="text-danger small">{{ form.image.errors }}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+          <div class="form-check mt-4">
+            {{ form.has_variants }}
+            <label class="form-check-label fw-semibold" for="{{ form.has_variants.id_for_label }}">Tiene variantes</label>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-check mt-4">
+            {{ form.is_active }}
+            <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">Activo</label>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+      <h5 class="mb-3"><i class="bi bi-palette"></i> Variantes</h5>
+      {{ variant_formset.management_form }}
+      <div class="table-responsive">
+        <table class="table table-bordered" id="variant-table">
+          <thead class="table-light">
+            <tr>
+              <th>Talla</th>
+              <th>Color</th>
+              <th>Código color</th>
+              <th>Stock</th>
+              <th>Precio especial</th>
+              <th>SKU</th>
+              <th>Activo</th>
+              <th>Eliminar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vf in variant_formset %}
+              <tr>
+                <td>{{ vf.size }}{{ vf.id }}</td>
+                <td>{{ vf.color }}</td>
+                <td>{{ vf.color_code }}</td>
+                <td>{{ vf.stock }}</td>
+                <td>{{ vf.price_override }}</td>
+                <td>{{ vf.sku }}</td>
+                <td class="text-center">{{ vf.is_active }}</td>
+                <td class="text-center">{{ vf.DELETE }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4">
+        <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar</button>
+        <a href="{% url 'dashboard:product_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block inline_javascript %}
+<script>
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (!el.classList.contains('form-control') && !el.classList.contains('form-select') && !el.classList.contains('form-check-input') && !el.classList.contains('form-control-color')) {
+      if (el.type === 'checkbox') el.classList.add('form-check-input');
+      else if (el && el.size !== 7) el.classList.add('form-control');
+    }
+  });
+</script>
+{% endblock %}

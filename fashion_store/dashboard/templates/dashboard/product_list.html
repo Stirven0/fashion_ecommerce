@@ -1,0 +1,112 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+
+{% block title %}Productos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0"><i class="bi bi-box"></i> Productos</h3>
+  <a href="{% url 'dashboard:product_create' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo producto</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-4">
+    <input type="text" name="q" class="form-control" placeholder="Buscar producto..." value="{{ current_q }}">
+  </div>
+  <div class="col-md-3">
+    <select name="category" class="form-select">
+      <option value="">Todas las categorías</option>
+      {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if current_cat == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <select name="status" class="form-select">
+      <option value="">Todos</option>
+      <option value="active" {% if current_status == "active" %}selected{% endif %}>Activos</option>
+      <option value="inactive" {% if current_status == "inactive" %}selected{% endif %}>Inactivos</option>
+    </select>
+  </div>
+  <div class="col-md-1">
+    <button type="submit" class="btn btn-dark w-100"><i class="bi bi-search"></i></button>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th>Nombre</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Vendidos</th>
+          <th>Estado</th>
+          <th class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+          <tr>
+            <td>
+              <a href="{% url 'dashboard:product_edit' product.id %}" class="text-decoration-none fw-semibold">{{ product.name }}</a>
+            </td>
+            <td>{{ product.category.name }}</td>
+            <td>${{ product.price|intcomma }}</td>
+            <td>
+              {% with total_stock=product.variants.all|dictsort:"stock" %}
+                {% if product.variants.all %}
+                  {% for v in product.variants.all %}
+                    {% if v.stock <= 5 %}
+                      <span class="badge bg-warning text-dark">{{ v.stock }} ({{ v.size|default:"-" }}/{{ v.color|default:"-" }})</span>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              {% endwith %}
+            </td>
+            <td>{{ product.total_sold|default:0 }}</td>
+            <td>
+              {% if product.is_active %}
+                <span class="badge bg-success">Activo</span>
+              {% else %}
+                <span class="badge bg-secondary">Inactivo</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a href="{% url 'dashboard:product_edit' product.id %}" class="btn btn-sm btn-outline-dark" title="Editar"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{% url 'dashboard:product_toggle' product.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm {% if product.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %}" title="{% if product.is_active %}Desactivar{% else %}Activar{% endif %}">
+                  <i class="bi {% if product.is_active %}bi-eye-slash{% else %}bi-eye{% endif %}"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="text-center py-4 text-muted">No hay productos</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+  <nav class="mt-3">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1{% if current_q %}&q={{ current_q }}{% endif %}{% if current_cat %}&category={{ current_cat }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">&laquo;</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_cat %}&category={{ current_cat }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ page_obj.previous_page_number }}</a></li>
+      {% endif %}
+      <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+      {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_cat %}&category={{ current_cat }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ page_obj.next_page_number }}</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_cat %}&category={{ current_cat }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">&raquo;</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+{% endblock %}
