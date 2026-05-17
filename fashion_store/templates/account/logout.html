@@ -1,0 +1,27 @@
+{% extends "account/base_manage.html" %}
+{% load allauth i18n %}
+
+{% block head_title %}
+  {% trans "Sign Out" %}
+{% endblock head_title %}
+
+{% block content %}
+  <h4 class="fw-bold mb-3">{% trans "Sign Out" %}</h4>
+  <p class="text-muted mb-4">{% trans 'Are you sure you want to sign out?' %}</p>
+
+  {% url 'account_logout' as action_url %}
+  {% element form method="post" action=action_url no_visible_fields=True %}
+    {% slot body %}
+      {% csrf_token %}
+      {{ redirect_field }}
+    {% endslot %}
+    {% slot actions %}
+      <div class="d-flex gap-2">
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary flex-fill">Cancelar</a>
+        {% element button type="submit" tags="danger" %}
+          {% trans 'Sign Out' %}
+        {% endelement %}
+      </div>
+    {% endslot %}
+  {% endelement %}
+{% endblock content %}

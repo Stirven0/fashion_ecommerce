@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static humanize %}
+{% load crispy_forms_tags %}
+
+{% block title %}Pedido - {{ store_name }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-7">
+    <h3 class="mb-3"><i class="bi bi-truck"></i> Datos de envío</h3>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="post" action="{% url 'orders:checkout_step2' %}">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button type="submit" class="btn btn-dark btn-lg w-100 mt-3">
+            <i class="bi bi-cart-check"></i> Revisar pedido
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    <h3 class="mb-3"><i class="bi bi-cart3"></i> Resumen del pedido</h3>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        {% for item in cart %}
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <strong>{{ item.product.name }}</strong>
+              {% if item.variant %}
+                <br><small class="text-muted">{{ item.variant.size }} / {{ item.variant.color }}</small>
+              {% endif %}
+              <br><small class="text-muted">Cant: {{ item.quantity }}</small>
+            </div>
+            <span class="fw-bold">${{ item.total|floatformat:0|intcomma }}</span>
+          </div>
+          {% if not forloop.last %}<hr class="my-2">{% endif %}
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between">
+          <strong>Total</strong>
+          <strong class="fs-5">${{ cart.get_total_price|floatformat:0|intcomma }}</strong>
+        </div>
+        <div class="alert alert-info mt-3 small">
+          <i class="bi bi-info-circle"></i> El pago se coordinará directamente por WhatsApp con el vendedor.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

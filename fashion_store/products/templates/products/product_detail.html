@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ product.name }} - {{ store_name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'products:list' %}">Productos</a></li>
+    <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+    <li class="breadcrumb-item active">{{ product.name }}</li>
+  </ol>
+</nav>
+
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" id="main-image" style="width: 100%; height: 400px; object-fit: contain;">
+      {% else %}
+        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+          <i class="bi bi-image text-secondary" style="font-size: 5rem;"></i>
+        </div>
+      {% endif %}
+    </div>
+    {% if product.images.all %}
+      <div class="d-flex gap-2 mt-2">
+        {% for img in product.images.all %}
+          <img src="{{ img.image.url }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover; cursor: pointer;" onclick="document.getElementById('main-image').src=this.src" alt="{{ img.alt_text }}">
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-6">
+    <h2>{{ product.name }}</h2>
+    <p class="text-muted">{{ product.category.name }}</p>
+
+    <div class="mb-3">
+      <span class="fs-3 fw-bold">${{ product.price|floatformat:0|intcomma }}</span>
+      {% if product.compare_price %}
+        <span class="text-danger text-decoration-line-through ms-2">${{ product.compare_price|floatformat:0|intcomma }}</span>
+        <span class="badge bg-danger ms-2">-{{ product.compare_price|add:product.price|floatformat:0|intcomma }}</span>
+      {% endif %}
+    </div>
+
+    <p class="mb-4">{{ product.description }}</p>
+
+    <form method="post" action="{% url 'cart:add' %}">
+      {% csrf_token %}
+      <input type="hidden" name="product_id" value="{{ product.id }}">
+
+      {% if sizes or colors %}
+        <div class="row g-3 mb-3">
+          {% if sizes %}
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Talla</label>
+              <select name="size" class="form-select" id="size-select" onchange="updateVariant()">
+                <option value="">Seleccionar talla</option>
+                {% for size in sizes %}
+                  <option value="{{ size }}">{{ size }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+          {% if colors %}
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold">Color</label>
+              <div class="d-flex flex-wrap gap-2">
+                {% for color in colors %}
+                  <label class="color-swatch" style="cursor: pointer;">
+                    <input type="radio" name="color" value="{{ color }}" class="btn-check" onchange="updateVariant()" {% if forloop.first %}checked{% endif %}>
+                    <span class="btn btn-outline-dark btn-sm">{{ color }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        <input type="hidden" name="variant_id" id="variant-id-input">
+        <div id="stock-info" class="small text-muted mb-2"></div>
+      {% endif %}
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Cantidad</label>
+        <input type="number" name="quantity" value="1" min="1" max="99" class="form-control" style="width: 100px;">
+      </div>
+
+      <button type="submit" class="btn btn-dark btn-lg w-100">
+        <i class="bi bi-cart-plus"></i> Agregar al carrito
+      </button>
+    </form>
+
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'products:wishlist_add' %}" class="mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <button type="submit" class="btn btn-outline-danger btn-lg w-100">
+          <i class="bi bi-heart"></i> Agregar a favoritos
+        </button>
+      </form>
+    {% endif %}
+
+    {% if product.has_variants %}
+      <div class="alert alert-info mt-3 small">
+        <i class="bi bi-info-circle"></i> Selecciona talla y color para ver disponibilidad.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if related_products %}
+  <hr class="my-4">
+  <h4 class="mb-3">Productos relacionados</h4>
+  <div class="row g-3">
+    {% for related in related_products %}
+      <div class="col-6 col-md-3">
+        <div class="card h-100 shadow-sm">
+          {% if related.image %}
+            <img src="{{ related.image.url }}" class="card-img-top" alt="{{ related.name }}" style="height: 150px; object-fit: cover;">
+          {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+              <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
+            </div>
+          {% endif %}
+          <div class="card-body p-2">
+            <h6 class="card-title small">{{ related.name }}</h6>
+            <span class="fw-bold">${{ related.price|floatformat:0|intcomma }}</span>
+            <a href="{{ related.get_absolute_url }}" class="btn btn-sm btn-outline-dark float-end">Ver</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if product.reviews.all %}
+  <hr class="my-4">
+  <h4 class="mb-3">Reseñas</h4>
+  {% for review in product.reviews.all %}
+    <div class="card mb-2">
+      <div class="card-body py-2">
+        <div class="d-flex justify-content-between">
+          <strong>{{ review.user.name|default:review.user.username }}</strong>
+          <span>
+            {% for i in "12345"|make_list %}
+              {% if forloop.counter <= review.rating %}
+                <i class="bi bi-star-fill text-warning"></i>
+              {% else %}
+                <i class="bi bi-star text-secondary"></i>
+              {% endif %}
+            {% endfor %}
+          </span>
+        </div>
+        {% if review.comment %}
+          <p class="mb-0 small mt-1">{{ review.comment }}</p>
+        {% endif %}
+        <small class="text-muted">{{ review.created_at|date:"d/m/Y" }}</small>
+      </div>
+    </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block inline_javascript %}
+<script>
+  const variants = {{ variants_json|safe }};
+
+  function updateVariant() {
+    const size = document.querySelector('[name="size"]')?.value || '';
+    const colorInput = document.querySelector('[name="color"]:checked');
+    const color = colorInput ? colorInput.value : '';
+    const variantIdInput = document.getElementById('variant-id-input');
+    const stockInfo = document.getElementById('stock-info');
+
+    if (!size && !color) {
+      variantIdInput.value = '';
+      stockInfo.textContent = '';
+      return;
+    }
+
+    const match = variants.find(v =>
+      (!size || v.size === size) &&
+      (!color || v.color === color)
+    );
+
+    if (match) {
+      variantIdInput.value = match.id;
+      if (match.stock === 0) {
+        stockInfo.innerHTML = '<span class="text-danger">Agotado</span>';
+      } else if (match.stock <= 5) {
+        stockInfo.innerHTML = `<span class="text-warning">Quedan ${match.stock} unidades</span>`;
+      } else {
+        stockInfo.innerHTML = `<span class="text-success">Disponible (${match.stock} en stock)</span>`;
+      }
+    } else {
+      variantIdInput.value = '';
+      stockInfo.innerHTML = '<span class="text-danger">Combinación no disponible</span>';
+    }
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block content %}
+<div class="bg-dark text-light p-5 rounded-3 mb-4 text-center">
+  <h1 class="display-4 fw-bold">{{ store_name }}</h1>
+  <p class="lead">Descubre las últimas tendencias en moda</p>
+  <a href="{% url 'products:list' %}" class="btn btn-light btn-lg mt-2">Ver productos</a>
+</div>
+
+<h3 class="mb-3">Categorías</h3>
+<div class="row g-3 mb-5">
+  {% for category in categories %}
+    <div class="col-6 col-md-3">
+      <a href="{% url 'products:list' %}?category={{ category.slug }}" class="text-decoration-none">
+        <div class="card bg-dark text-light text-center py-4 h-100">
+          <h5 class="mb-0">{{ category.name }}</h5>
+          <small class="text-secondary">{{ category.products.count }} productos</small>
+        </div>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+
+{% if featured_products %}
+  <h3 class="mb-3">Productos destacados</h3>
+  <div class="row g-3">
+    {% for product in featured_products %}
+      <div class="col-6 col-md-3">
+        <div class="card h-100 shadow-sm">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+          {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+              <i class="bi bi-image text-secondary" style="font-size: 2rem;"></i>
+            </div>
+          {% endif %}
+          <div class="card-body p-2">
+            <h6 class="card-title small">{{ product.name }}</h6>
+            <span class="fw-bold">${{ product.price|floatformat:0|intcomma }}</span>
+            <a href="{{ product.get_absolute_url }}" class="btn btn-sm btn-outline-dark float-end">Ver</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,137 @@
+.alert-debug {
+  color: black;
+  background-color: white;
+  border-color: #d6e9c6;
+}
+
+.alert-error {
+  color: #b94a48;
+  background-color: #f2dede;
+  border-color: #eed3d7;
+}
+
+/* Auth pages */
+.card-title {
+  letter-spacing: -0.02em;
+}
+
+.nav-pills .nav-link {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nav-pills .nav-link.active {
+  background-color: #212529;
+}
+
+/* Form field improvements */
+input.form-control,
+select.form-control,
+textarea.form-control {
+  font-size: 0.925rem;
+  padding: 0.5rem 0.75rem;
+}
+
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus {
+  border-color: #212529;
+  box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.15);
+}
+
+/* List group for email management */
+.list-group-item {
+  border: 1px solid #dee2e6;
+  margin-bottom: 0.25rem;
+  border-radius: 0.375rem !important;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Cart badge animation */
+.badge.rounded-pill {
+  font-size: 0.6rem;
+}
+
+/* Product cards */
+.card {
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Navbar brand */
+.navbar-brand {
+  letter-spacing: -0.02em;
+}
+
+/* Error list styling */
+.errorlist {
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0;
+}
+
+.errorlist li {
+  color: #dc3545;
+  font-size: 0.8rem;
+}
+
+/* Password strength (allauth shows this) */
+.helptext {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Alert styling for allauth */
+.alert {
+  margin-bottom: 1rem;
+}
+
+/* Auth entrance layout */
+.auth-card .card {
+  margin: 0 auto;
+}
+
+.auth-card .card-body {
+  padding: 2rem;
+}
+
+.avatar-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.icon-lg {
+  font-size: 3rem;
+}
+
+.min-vh-75 {
+  min-height: 75vh;
+}
+
+/* Sidebar nav pills active state matching */
+@media (min-width: 992px) {
+  .auth-sidebar {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+/* Social account buttons */
+.btn-outline-dark:hover {
+  background-color: #212529;
+  color: #fff;
+}

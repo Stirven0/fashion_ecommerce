@@ -1,0 +1,8 @@
+{% load i18n %}
+{% load allauth %}
+
+<div class="alert {% if 'success' in attrs.tags %}alert-success{% elif 'error' in attrs.tags or 'danger' in attrs.tags %}alert-danger{% elif 'warning' in attrs.tags %}alert-warning{% elif 'info' in attrs.tags %}alert-info{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+  {% slot message %}
+{% endslot %}
+<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>

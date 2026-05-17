@@ -1,0 +1,85 @@
+{% extends "account/base_manage_email.html" %}
+{% load static allauth i18n %}
+
+{% block head_title %}
+  {% trans "Email Addresses" %}
+{% endblock head_title %}
+
+{% block content %}
+  <h4 class="fw-bold mb-3">{% trans "Email Addresses" %}</h4>
+
+  {% if emailaddresses %}
+    <p class="text-muted small">{% trans 'The following email addresses are associated with your account:' %}</p>
+
+    {% url 'account_email' as email_url %}
+    {% element form form=form action=email_url method="post" tags="email,list" %}
+      {% slot body %}
+        {% csrf_token %}
+        <div class="list-group mb-3">
+          {% for radio in emailaddress_radios %}
+            {% with emailaddress=radio.emailaddress %}
+              <label class="list-group-item d-flex align-items-center gap-3">
+                <input type="radio" name="email" value="{{ emailaddress.email }}" id="{{ radio.id }}"
+                       class="form-check-input flex-shrink-0" {% if radio.checked %}checked{% endif %}>
+                <div class="flex-grow-1">
+                  <strong>{{ emailaddress.email }}</strong>
+                  <div class="d-flex gap-2 mt-1">
+                    {% if emailaddress.verified %}
+                      <span class="badge bg-success">{% translate "Verified" %}</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">{% translate "Unverified" %}</span>
+                    {% endif %}
+                    {% if emailaddress.primary %}
+                      <span class="badge bg-dark">{% translate "Primary" %}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </label>
+            {% endwith %}
+          {% endfor %}
+        </div>
+      {% endslot %}
+      {% slot actions %}
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button type="submit" name="action_primary" class="btn btn-outline-dark btn-sm">
+            <i class="bi bi-star"></i> {% trans 'Make Primary' %}
+          </button>
+          <button type="submit" name="action_send" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-repeat"></i> {% trans 'Re-send Verification' %}
+          </button>
+          <button type="submit" name="action_remove" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-trash"></i> {% trans 'Remove' %}
+          </button>
+        </div>
+      {% endslot %}
+    {% endelement %}
+  {% else %}
+    {% include "account/snippets/warn_no_email.html" %}
+  {% endif %}
+
+  {% if can_add_email %}
+    <hr class="my-4" />
+    <h5 class="fw-bold mb-3">{% trans "Add Email Address" %}</h5>
+    {% url 'account_email' as action_url %}
+    {% element form form=form method="post" action=action_url tags="email,add" %}
+      {% slot body %}
+        {% csrf_token %}
+        {% element fields form=form %}
+        {% endelement %}
+      {% endslot %}
+      {% slot actions %}
+        {% element button name="action_add" type="submit" tags="prominent" %}
+          <i class="bi bi-plus-circle"></i> {% trans "Add Email" %}
+        {% endelement %}
+      {% endslot %}
+    {% endelement %}
+  {% endif %}
+{% endblock content %}
+{% block extra_body %}
+  <script src="{% static 'account/js/account.js' %}"></script>
+  <script src="{% static 'account/js/onload.js' %}"></script>
+  <script data-allauth-onload="allauth.account.forms.manageEmailForm" type="application/json">{
+    "i18n": {"confirmDelete": "{% trans 'Do you really want to remove the selected email address?' %}"}
+  }
+  </script>
+{% endblock extra_body %}
