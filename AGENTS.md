@@ -1,108 +1,89 @@
 # AGENTS.md
 
-## Project Overview
+## Project
 
-**fashion_store** — Tienda de moda online construida con Cookiecutter Django.
+**fashion_store** — E-commerce Django app (Cookiecutter Django). Python 3.14, Django 6.0.3, package manager `uv`.
 
-| Tool | Version |
+---
+
+## Setup & Quickstart
+
+```bash
+uv sync
+# dev server needs SQLite override (no PostgreSQL installed):
+DATABASE_URL=sqlite:///db.sqlite3 uv run python manage.py runserver 0.0.0.0:8000
+```
+
+---
+
+## Key commands (all prefixed with `uv run`)
+
+| Command | Notes |
 |---|---|
-| Django | 6.0.3 |
-| Python | 3.14 |
-| Package Manager | `uv` |
+| `python manage.py migrate` | `manage.py` reads `DJANGO_SETTINGS_MODULE=config.settings.local` |
+| `python manage.py makemigrations <app>` | **No `--ds` flag** — use `DJANGO_SETTINGS_MODULE=...` env instead |
+| `python manage.py createsuperuser` | |
+| `pytest` | Uses `--ds=config.settings.test --reuse-db --import-mode=importlib` (set in pyproject.toml) |
+| `pytest tests/test_qa.py -v` | Run specific file |
+| `pytest tests/test_qa.py -k "Wishlist"` | Filter by test name |
+| `ruff check . && ruff format .` | Lint + format |
+| `ruff check --fix .` | Auto-fix |
+| `mypy fashion_store` | Typecheck |
+| `djlint .` | Template lint |
+
+Pre-commit: ruff check + format, djlint, django-upgrade (6.0), pyproject-fmt.
 
 ---
 
-## Setup
+## Settings structure
 
-```bash
-cd /home/fashion_store
-uv sync          # installs deps into .venv/
+`config/settings/` — `local.py` (default), `test.py` (pytest), `production.py`, `base.py` (shared).
+
+Settings: `LANGUAGE_CODE = "es-co"`, `TIME_ZONE = "America/Bogota"`.
+
+Context processors (`base.py`):
+- `fashion_store.users.context_processors.allauth_settings`
+- `fashion_store.context_processors.store_settings` — exposes `STORE_NAME`, `STORE_WHATSAPP`, `STORE_EMAIL`, `STORE_ADDRESS`, `STORE_CURRENCY` to templates
+- `fashion_store.cart.context_processors.cart_items` — exposes `cart_items_count`
+
+Store env vars: `STORE_NAME`, `STORE_WHATSAPP`, `STORE_EMAIL`, `STORE_ADDRESS`, `STORE_CURRENCY` (defaults in `base.py:294-298`).
+`.env` only loaded if `DJANGO_READ_DOT_ENV_FILE=True`.
+
+---
+
+## Apps & ownership
+
+| App | Path | What |
+|---|---|---|
+| `users` | `fashion_store/users/` | Custom User model, allauth integration, admin |
+| `products` | `fashion_store/products/` | Category, Product, ProductVariant, ProductImage, ProductReview, WishlistItem + views/urls |
+| `cart` | `fashion_store/cart/` | Session‑based Cart class, views (add/remove/update/detail), context processor |
+| `orders` | `fashion_store/orders/` | Order, OrderItem, ShippingAddress; WhatsApp checkout; history |
+| Root views | `fashion_store/views.py` | HomeView (categories + featured products) |
+| Root templates | `fashion_store/templates/` | base.html, allauth overrides, pages |
+| `wishlist_views.py` | `fashion_store/products/wishlist_views.py` | Wishlist add/remove/detail views |
+
+Test factories: `fashion_store/{users,products}/tests/factories.py`.  
+Global fixture: `fashion_store/conftest.py` — `user` fixture, `_media_storage` (autouse, sets MEDIA_ROOT to tmpdir).
+
+Migrations: excluded from ruff + mypy (set in pyproject.toml).
+
+---
+
+## Database
+
+`DATABASE_URL` env var (default `postgres:///fashion_store`). This environment has no PostgreSQL — always override:
 ```
-
----
-
-## Developer Commands
-
-All commands must be prefixed with `uv run` (or activate `.venv` first):
-
-```bash
-uv run python manage.py runserver        # dev server (uses config.settings.local)
-uv run python manage.py migrate          # run migrations
-uv run python manage.py createsuperuser  # create admin user
+DATABASE_URL=sqlite:///db.sqlite3
 ```
+Test uses SQLite via env override in `config/settings/test.py`.
 
 ---
 
-## Settings Structure
+## Conventions
 
-Multi-file settings in `config/settings/`:
-- **`local.py`** — default for `manage.py` (DEBUG=True, locmem cache, console email)
-- **`test.py`** — used by pytest (MD5 passwords, locmem email, fast runner)
-- **`production.py`** — production config
-- **`base.py`** — shared base
-
-Default `DJANGO_SETTINGS_MODULE` is `config.settings.local` (set in `manage.py`).
-
----
-
-## Testing
-
-```bash
-uv run pytest                              # run all tests
-uv run pytest fashion_store/users/tests/   # run tests for a specific app
-uv run coverage run -m pytest && uv run coverage html  # coverage report
-```
-
-- Test settings: `config.settings.test` (passed via `--ds` in `pyproject.toml`)
-- Uses `pytest-django`, `factory-boy`, `pytest-sugar`
-- Fixtures in `fashion_store/conftest.py` (`user` fixture available)
-- User factory at `fashion_store/users/tests/factories.py`
-- Tests live **inside** the app dir (`fashion_store/users/tests/`) plus root `tests/`
-
----
-
-## Lint / Format / Typecheck
-
-```bash
-uv run ruff check .      # lint (auto-fix: ruff check --fix .)
-uv run ruff format .     # format
-uv run mypy fashion_store  # type check
-uv run djlint .          # template lint
-```
-
-Pre-commit runs: ruff (check + format), djlint, django-upgrade (target 6.0), pyproject-fmt.
-
----
-
-## Key Conventions
-
-- **Single-line isort** enforced (`force-single-line = true` in ruff config)
-- **Ruff rules**: extensive set including Django-specific (`DJ`), flake8-bugbear (`B`), pylint (`PL`), and more
-- **Ignored Ruff rules**: `RUF012` (mutable class attrs), `S101` (assert), `SIM102` (nested ifs)
-- **Timezone**: `America/Bogota`
-- **Language**: `en-us` (README/docs in Spanish)
-- **Env loading**: uses `django-environ`; `.env` only read if `DJANGO_READ_DOT_ENV_FILE=True`
-- Env files live in `.envs/.local/` and `.envs/.production/`
-- **Database**: PostgreSQL by default (env var `DATABASE_URL`); test uses SQLite via env override
-- **Cache**: locmem in local/test, Redis in production
-
----
-
-## Directory Ownership
-
-- `config/` — Django settings, URLs, WSGI
-- `fashion_store/` — main Django app package (users, templates, static, contrib)
-- `fashion_store/users/` — custom user model + auth (allauth integration)
-- `tests/` — root-level tests (currently only `test_merge_production_dotenvs_in_dotenv.py`)
-- `docs/` — Sphinx documentation
-- `locale/` — i18n translations
-
----
-
-## Rules for Agents
-
-1. **Package manager**: Always use `uv`, not `pip`.
-2. **Lint before commit**: Run `uv run ruff check --fix . && uv run ruff format .`
-3. **Migrations**: Excluded from ruff linting and mypy — do not lint them manually.
-4. **Python version**: Requires Python 3.14 exactly.
-5. **Working directory**: Project root is `/home/fashion_store/`.
+- **Ruff**: `force-single-line = true` (one import per line). Ignores `RUF012`, `S101`, `SIM102`.
+- `@require_POST` for cart/wishlist mutating views. Login required via `@login_required`.
+- **Wishlist**: POST to `products:wishlist_add` or `products:wishlist_remove`. GET `products:wishlist` for listing.
+- **Checkout**: 3 steps (cart → shipping form → WhatsApp confirm). Order created before redirect to `wa.me/<number>`.
+- **Cart** stored in `request.session` (no DB model). `CART_SESSION_ID = "cart"` in base settings.
