@@ -59,6 +59,7 @@ Store env vars: `STORE_NAME`, `STORE_WHATSAPP`, `STORE_EMAIL`, `STORE_ADDRESS`, 
 | `products` | `fashion_store/products/` | Category, Product, ProductVariant, ProductImage, ProductReview, WishlistItem + views/urls |
 | `cart` | `fashion_store/cart/` | Session‑based Cart class, views (add/remove/update/detail), context processor |
 | `orders` | `fashion_store/orders/` | Order, OrderItem, ShippingAddress; WhatsApp checkout; history |
+| `dashboard` | `fashion_store/dashboard/` | Staff‑only panel: KPIs, product CRUD + variants, order management |
 | Root views | `fashion_store/views.py` | HomeView (categories + featured products) |
 | Root templates | `fashion_store/templates/` | base.html, allauth overrides, pages |
 | `wishlist_views.py` | `fashion_store/products/wishlist_views.py` | Wishlist add/remove/detail views |
