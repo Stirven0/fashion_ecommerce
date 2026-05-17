@@ -9,8 +9,6 @@ from django.urls import reverse
 
 from fashion_store.cart.cart import Cart
 from fashion_store.orders.models import Order
-from fashion_store.products.models import Product
-from fashion_store.products.models import ProductVariant
 from fashion_store.products.models import WishlistItem
 from fashion_store.products.tests.factories import CategoryFactory
 from fashion_store.products.tests.factories import ProductFactory

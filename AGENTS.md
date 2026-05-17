@@ -30,6 +30,8 @@ DATABASE_URL=sqlite:///db.sqlite3 uv run python manage.py runserver 0.0.0.0:8000
 | `ruff check --fix .` | Auto-fix |
 | `mypy fashion_store` | Typecheck |
 | `djlint .` | Template lint |
+| `python -m mcp_server` | Start MCP server (port 8100) — use `DATABASE_URL=sqlite:///db.sqlite3` |
+| `python -m mcp_server --help` | MCP help |
 
 Pre-commit: ruff check + format, djlint, django-upgrade (6.0), pyproject-fmt.
 
@@ -60,6 +62,7 @@ Store env vars: `STORE_NAME`, `STORE_WHATSAPP`, `STORE_EMAIL`, `STORE_ADDRESS`, 
 | `cart` | `fashion_store/cart/` | Session‑based Cart class, views (add/remove/update/detail), context processor |
 | `orders` | `fashion_store/orders/` | Order, OrderItem, ShippingAddress; WhatsApp checkout; history |
 | `dashboard` | `fashion_store/dashboard/` | Staff‑only panel: KPIs, product CRUD + variants, order management |
+| `mcp_server` | `mcp_server/` | Standalone MCP server (FastMCP) — tools for KPIs, products, orders, sales analysis |
 | Root views | `fashion_store/views.py` | HomeView (categories + featured products) |
 | Root templates | `fashion_store/templates/` | base.html, allauth overrides, pages |
 | `wishlist_views.py` | `fashion_store/products/wishlist_views.py` | Wishlist add/remove/detail views |

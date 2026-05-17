@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "fashion-store": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/home/fashion_store",
+        "python",
+        "-m",
+        "mcp_server"
+      ],
+      "env": {
+        "DATABASE_URL": "sqlite:///db.sqlite3"
+      }
+    }
+  }
+}
