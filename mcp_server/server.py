@@ -1,4 +1,4 @@
-# ruff: noqa: E402
+# ruff: noqa: E402, FBT001, FBT002, PLR0913
 from mcp.server.fastmcp import FastMCP
 
 from .django_setup import setup_django
@@ -12,6 +12,8 @@ from .tools.kpi import get_revenue_trend as _get_revenue_trend
 from .tools.orders import get_orders_by_status as _get_orders_by_status
 from .tools.orders import get_pending_orders as _get_pending_orders
 from .tools.orders import get_recent_orders as _get_recent_orders
+from .tools.products import add_product as _add_product
+from .tools.products import add_product_variant as _add_product_variant
 from .tools.products import get_best_sellers as _get_best_sellers
 from .tools.products import get_low_stock as _get_low_stock
 from .tools.products import get_product_detail as _get_product_detail
@@ -80,6 +82,61 @@ def get_sales_suggestions() -> list[dict]:
 @mcp.tool(description="Reporte completo de la tienda")
 def get_full_report() -> dict:
     return _get_full_report()
+
+
+@mcp.tool(
+    description=(
+        "Crear un nuevo producto. "
+        "Retorna el producto creado con su ID, slug y URL. "
+        "El slug se genera automáticamente desde el nombre."
+    ),
+)
+def add_product(
+    category_id: int,
+    name: str,
+    price: float,
+    description: str = "",
+    compare_price: float | None = None,
+    has_variants: bool = False,
+    is_active: bool = True,
+) -> dict:
+    return _add_product(
+        category_id,
+        name,
+        price,
+        description,
+        compare_price,
+        has_variants,
+        is_active,
+    )
+
+
+@mcp.tool(
+    description=(
+        "Agregar una variante (talla/color) a un producto existente. "
+        "Retorna la variante creada."
+    ),
+)
+def add_product_variant(
+    product_id: int,
+    size: str = "",
+    color: str = "",
+    color_code: str = "",
+    stock: int = 0,
+    price_override: float | None = None,
+    sku: str = "",
+    is_active: bool = True,
+) -> dict:
+    return _add_product_variant(
+        product_id,
+        size,
+        color,
+        color_code,
+        stock,
+        price_override,
+        sku,
+        is_active,
+    )
 
 
 if __name__ == "__main__":

@@ -74,6 +74,23 @@ Migrations: excluded from ruff + mypy (set in pyproject.toml).
 
 ---
 
+## MCP Server (`mcp_server/`)
+
+Standalone FastMCP server. Tools (13 total):
+
+### Consulta
+- `get_dashboard_kpis`, `get_best_sellers`, `get_low_stock`, `get_pending_orders`
+- `get_recent_orders`, `get_orders_by_status`, `get_revenue_trend`
+- `search_products`, `get_product_detail`, `get_sales_suggestions`, `get_full_report`
+
+### Administración
+- `add_product(category_id, name, price, ...)` — crea producto con slug auto
+- `add_product_variant(product_id, size, color, stock, sku, ...)` — agrega variante
+
+Start: `DATABASE_URL=sqlite:///db.sqlite3 uv run python -m mcp_server`
+
+---
+
 ## Database
 
 `DATABASE_URL` env var (default `postgres:///fashion_store`). This environment has no PostgreSQL — always override:
