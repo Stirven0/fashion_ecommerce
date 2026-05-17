@@ -91,13 +91,40 @@ Start: `DATABASE_URL=sqlite:///db.sqlite3 uv run python -m mcp_server`
 
 ---
 
-## Database
+## Deploy (Docker)
 
-`DATABASE_URL` env var (default `postgres:///fashion_store`). This environment has no PostgreSQL — always override:
+`docker-compose.yml` orquesta 5 servicios:
+
+| Servicio | Puerto | Notas |
+|---|---|---|
+| `postgres` | 5432 | Volumen persistente |
+| `redis` | 6379 | Cache/sesiones |
+| `django` | 8000 (interno) | Gunicorn, migrate automático al iniciar |
+| `mcp` | 8100 (interno) | MCP server vía Nginx en `/mcp` |
+| `nginx` | 80 | Proxy reverso, static/media cacheado |
+
+### Build & run
+
+```bash
+# Ajustar contraseñas primero
+vim .envs/.production/.django .envs/.production/.postgres
+
+docker compose build
+docker compose up -d
+docker compose exec django python manage.py createsuperuser
 ```
-DATABASE_URL=sqlite:///db.sqlite3
-```
-Test uses SQLite via env override in `config/settings/test.py`.
+
+### Volúmenes
+
+| Volumen | Mount |
+|---|---|
+| `postgres_data` | `/var/lib/postgresql/data` |
+| `django_media` | `/app/media` |
+| `django_static` | `/app/staticfiles` |
+
+---
+
+## Database
 
 ---
 

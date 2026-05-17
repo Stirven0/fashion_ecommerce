@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: fashion_store_postgres
+    restart: unless-stopped
+    env_file:
+      - .envs/.production/.postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fashion_store"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: fashion_store_redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fashion_store_django
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .envs/.production/.django
+      - .envs/.production/.postgres
+    volumes:
+      - django_media:/app/media
+      - django_static:/app/staticfiles
+    expose:
+      - 8000
+
+  mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fashion_store_mcp
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .envs/.production/.django
+      - .envs/.production/.postgres
+    expose:
+      - 8100
+    entrypoint: ["/app/compose/production/mcp/entrypoint.sh"]
+    command: ["/app/compose/production/mcp/start.sh"]
+
+  nginx:
+    build:
+      context: ./compose/production/nginx
+    container_name: fashion_store_nginx
+    restart: unless-stopped
+    depends_on:
+      - django
+      - mcp
+    ports:
+      - "80:80"
+    volumes:
+      - django_media:/app/media:ro
+      - django_static:/app/staticfiles:ro
+
+volumes:
+  postgres_data:
+  django_media:
+  django_static:

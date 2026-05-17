@@ -1,31 +1,35 @@
-# General
+# Django
 # ------------------------------------------------------------------------------
-# DJANGO_READ_DOT_ENV_FILE=True
 DJANGO_SETTINGS_MODULE=config.settings.production
-DJANGO_SECRET_KEY=dbDr34ElZ91fhiYTePnVHpC5ekW99pfrGqQ8XPgR6bFZjYI6MgMwh6aiT8Le2HJ3
-DJANGO_ADMIN_URL=kSjhcqtXslihNr13V0m1COyVKH8F7vNf/
-DJANGO_ALLOWED_HOSTS=.stirven.com
-
-# Security
-# ------------------------------------------------------------------------------
-# TIP: better off using DNS, however, redirect is OK too
+DJANGO_SECRET_KEY=changeme_to_a_long_random_string
+DJANGO_ALLOWED_HOSTS=stirven.com,www.stirven.com,localhost
+DJANGO_ADMIN_URL=admin/
 DJANGO_SECURE_SSL_REDIRECT=False
+DJANGO_READ_DOT_ENV_FILE=False
 
-# Email
+# Database
 # ------------------------------------------------------------------------------
-DJANGO_SERVER_EMAIL=
-
-
-# django-allauth
-# ------------------------------------------------------------------------------
-DJANGO_ACCOUNT_ALLOW_REGISTRATION=True
-
-# Gunicorn
-# ------------------------------------------------------------------------------
-WEB_CONCURRENCY=4
-
+DATABASE_URL=postgres://fashion_store:changeme@postgres:5432/fashion_store
 
 # Redis
 # ------------------------------------------------------------------------------
 REDIS_URL=redis://redis:6379/0
 
+# Store
+# ------------------------------------------------------------------------------
+STORE_NAME=Fashion Store
+STORE_WHATSAPP=+573001234567
+STORE_EMAIL=hola@fashionstore.com
+STORE_ADDRESS=
+STORE_CURRENCY=COP
+
+# Email
+# ------------------------------------------------------------------------------
+DJANGO_DEFAULT_FROM_EMAIL=Fashion Store <noreply@stirven.com>
+DJANGO_SERVER_EMAIL=noreply@stirven.com
+
+# Gunicorn
+# ------------------------------------------------------------------------------
+GUNICORN_WORKERS=4
+GUNICORN_TIMEOUT=120
+GUNICORN_LOG_LEVEL=info

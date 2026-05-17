@@ -98,6 +98,16 @@ Servidor MCP (Model Context Protocol) para que asistentes IA puedan administrar 
 DATABASE_URL=sqlite:///db.sqlite3 uv run python -m mcp_server
 ```
 
+### Despliegue Docker
+
+```bash
+docker compose build
+docker compose up -d
+docker compose exec django python manage.py createsuperuser
+```
+
+Nginx expone en puerto 80. Ver `.envs/.production/` para configuración.
+
 ### Integración con OpenCode
 
 Agregar en `opencode.json`:
