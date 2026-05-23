@@ -76,6 +76,18 @@ class Product(models.Model):
     def get_absolute_url(self):
         return reverse("products:detail", kwargs={"slug": self.slug})
 
+    @property
+    def savings(self):
+        if self.compare_price:
+            return self.compare_price - self.price
+        return None
+
+    @property
+    def discount_percentage(self):
+        if self.compare_price and self.price:
+            return int((self.compare_price - self.price) / self.compare_price * 100)
+        return None
+
 
 class ProductVariant(models.Model):
     product = models.ForeignKey(

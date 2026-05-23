@@ -1,15 +1,10 @@
 {
-  "mcpServers": {
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
     "fashion-store": {
-      "command": "uv",
-      "args": [
-        "run",
-        "--directory",
-        "/home/fashion_store",
-        "python",
-        "-m",
-        "mcp_server"
-      ],
+      "type": "local",
+      "command": ["uv", "run", "--directory", "/home/fashion_store", "python", "-m", "mcp_server"],
+      "enabled": true,
       "env": {
         "DATABASE_URL": "sqlite:///db.sqlite3"
       }

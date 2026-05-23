@@ -40,7 +40,8 @@
       <span class="fs-3 fw-bold">${{ product.price|floatformat:0|intcomma }}</span>
       {% if product.compare_price %}
         <span class="text-danger text-decoration-line-through ms-2">${{ product.compare_price|floatformat:0|intcomma }}</span>
-        <span class="badge bg-danger ms-2">-{{ product.compare_price|add:product.price|floatformat:0|intcomma }}</span>
+        <span class="badge bg-danger ms-2">-{{ product.savings|floatformat:0|intcomma }}</span>
+        <span class="badge bg-warning text-dark ms-1">{{ product.discount_percentage }}% OFF</span>
       {% endif %}
     </div>
 
